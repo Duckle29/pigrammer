@@ -115,7 +115,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	lines = []
 
 	start = time.time() # Time used to timeout avrdude
-	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	while P_flash.poll == None:
 		print("test")
