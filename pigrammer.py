@@ -83,6 +83,12 @@ def shutdown():
 	output = process.communicate()[0]
 	print(output)
 
+def testuser():
+	command = ["/usr/bin/users"]
+	process = subprocess.Popen(command, stdout=subprocess.PIPE)
+	output = process.communicate()[0]
+	print(output)
+
 def drawScreen(x, image, lines):
 	# Draw a black filled box to clear the image.
 	draw.rectangle((0,0,width,height), outline=0, fill=0)
@@ -97,8 +103,6 @@ def drawScreen(x, image, lines):
 
 def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, timeout):
 	
-	command = "{} -p m32u4 -c linuxspi -P /dev/spidev0.0 -b 4000000 -U flash:w:{}:a -U lfuse:w:{}:m -U hfuse:w:{}:m -U efuse:w:{}:m -U lock:w:{}:m &>{}".format(avrdude_path, hex_path, low_fuse, high_fuse, ext_fuse, lock_fuse, log_file)
-
 	command = [avrdude_path, 
 	"-p", "m32u4",
 	"-c", "linuxspi",
@@ -148,6 +152,7 @@ def signal_handler(sig, frame):
 
 def flash_handler(channel):
 	global lines
+	testuser()
 	print("Trying to flash")
 	try:
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
