@@ -99,7 +99,7 @@ def drawScreen(x, image, lines):
 from pprint import pprint
 
 def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, timeout):
-	print("A")
+	
 
 	command = [avrdude_path, 
 	"-p", "m32u4",
@@ -119,6 +119,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	try:
+		print("A")
 		outp = P_flash.communicate(timeout=avrdude_timeout)[0]
 	except TimeoutExpired:
 		P_flash.kill()
