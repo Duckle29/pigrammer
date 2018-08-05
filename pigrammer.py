@@ -72,74 +72,74 @@ font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf',10)
 #### End of display stuff
 
 def restart():
-    command = ["/usr/bin/sudo",  "/sbin/reboot"]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    print(output)
+	command = ["/usr/bin/sudo",  "/sbin/reboot"]
+	process = subprocess.Popen(command, stdout=subprocess.PIPE)
+	output = process.communicate()[0]
+	print(output)
 
 def shutdown():
-    command = ["/usr/bin/sudo", "/sbin/shutdown -h 0"]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE)
-    output = process.communicate()[0]
-    print(output)
+	command = ["/usr/bin/sudo", "/sbin/shutdown -h 0"]
+	process = subprocess.Popen(command, stdout=subprocess.PIPE)
+	output = process.communicate()[0]
+	print(output)
 
 def drawScreen(x, image, lines):
-    # Draw a black filled box to clear the image.
-    draw.rectangle((0,0,width,height), outline=0, fill=0)
-    
-    for idx, line in enumerate(lines):
-        draw.text((x,top+(8*idx)), line, font=font, fill=255)
-    
-    disp.image(image)
-    disp.display()
+	# Draw a black filled box to clear the image.
+	draw.rectangle((0,0,width,height), outline=0, fill=0)
+	
+	for idx, line in enumerate(lines):
+		draw.text((x,top+(8*idx)), line, font=font, fill=255)
+	
+	disp.image(image)
+	disp.display()
 
 
 
 def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, timeout):
-    
-    command = "{} -p m32u4 -c linuxspi -P /dev/spidev0.0 -b 4000000 -U flash:w:{}:a -U lfuse:w:{}:m -U hfuse:w:{}:m -U efuse:w:{}:m -U lock:w:{}:m &>{}".format(avrdude_path, hex_path, low_fuse, high_fuse, ext_fuse, lock_fuse, log_file)
+	
+	command = "{} -p m32u4 -c linuxspi -P /dev/spidev0.0 -b 4000000 -U flash:w:{}:a -U lfuse:w:{}:m -U hfuse:w:{}:m -U efuse:w:{}:m -U lock:w:{}:m &>{}".format(avrdude_path, hex_path, low_fuse, high_fuse, ext_fuse, lock_fuse, log_file)
 
-    command = [avrdude_path, 
-    "-p", "m32u4",
-    "-c", "linuxspi",
-    "-P", "/dev/spidev0.0",
-    "-b", "4000000",
-    "-U", "flash:w:{}".format(hex_path),
-    "-U", "lfuse:w:{}:m".format(low_fuse),
-    "-U", "hfuse:w:{}:m".format(high_fuse),
-    "-U", "efuse:w:{}:m".format(ext_fuse),
-    "-U", "lock:w:{}:m".format(lock_fuse)
-    ]
+	command = [avrdude_path, 
+	"-p", "m32u4",
+	"-c", "linuxspi",
+	"-P", "/dev/spidev0.0",
+	"-b", "4000000",
+	"-U", "flash:w:{}".format(hex_path),
+	"-U", "lfuse:w:{}:m".format(low_fuse),
+	"-U", "hfuse:w:{}:m".format(high_fuse),
+	"-U", "efuse:w:{}:m".format(ext_fuse),
+	"-U", "lock:w:{}:m".format(lock_fuse)
+	]
 
-    lines = []
+	lines = []
 
-    start = time.time() # Time used to timeout avrdude
-    P_flash = subprocess.Popen(command, stdout=subprocess.PIPE)
+	start = time.time() # Time used to timeout avrdude
+	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE)
 
-    while P_flash.poll == None:
-        
-        if time.time() - start > timeout:
-            P_flash.kill()
-            raise SystemError("AVRDUDE timed out")
+	while P_flash.poll == None:
+		
+		if time.time() - start > timeout:
+			P_flash.kill()
+			raise SystemError("AVRDUDE timed out")
 
-        for line in P_flash.stdout:
-            if "1 bytes of efuse verified" in line:
-                lines.append("EFUSE : OK")
-                print("EFUSE : OK")
-            elif "1 bytes of hfuse verified" in line:
-                lines.append("HFUSE : OK")
-                print("HFUSE : OK")
-            elif "1 bytes of lfuse verified" in line:
-                lines.append("LFUSE : OK")
-                print("LFUSE : OK")
-            elif "error" in line:
-                lines.append("ERROR")
-                print("ERROR flashing: {}").format(line)
-                raise SystemError("Error flashing: {}".format(line))
-            #print("Debug: {}".format(line))
-        
-        drawScreen(x, image, lines)
-        time.sleep(0.1)
+		for line in P_flash.stdout:
+			if "1 bytes of efuse verified" in line:
+				lines.append("EFUSE : OK")
+				print("EFUSE : OK")
+			elif "1 bytes of hfuse verified" in line:
+				lines.append("HFUSE : OK")
+				print("HFUSE : OK")
+			elif "1 bytes of lfuse verified" in line:
+				lines.append("LFUSE : OK")
+				print("LFUSE : OK")
+			elif "error" in line:
+				lines.append("ERROR")
+				print("ERROR flashing: {}").format(line)
+				raise SystemError("Error flashing: {}".format(line))
+			#print("Debug: {}".format(line))
+		
+		drawScreen(x, image, lines)
+		time.sleep(0.1)
 
 def signal_handler(sig, frame):
 	print("Exiting program")
@@ -148,17 +148,17 @@ def signal_handler(sig, frame):
 
 def flash_handler(channel):
 	print("Trying to flash")
-        try:
-            flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
-        except SystemError as e:
-            print("Error flashing: {}".format(e))
-            lines = []
-            lines.append("Error flashing board", "Try again")
-            GPIO.output(pin_led_good, GPIO.LOW)
-            GPIO.output(pin_led_bad, GPIO.HIGH)
+		try:
+			flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
+		except SystemError as e:
+			print("Error flashing: {}".format(e))
+			lines = []
+			lines.append("Error flashing board", "Try again")
+			GPIO.output(pin_led_good, GPIO.LOW)
+			GPIO.output(pin_led_bad, GPIO.HIGH)
 		else:
 			GPIO.output(pin_led_good, GPIO.HIGH)
-        	GPIO.output(pin_led_bad, GPIO.LOW)
+			GPIO.output(pin_led_bad, GPIO.LOW)
 			lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -167,5 +167,5 @@ GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bounceti
 print("Startig loop")
  
 while True:
-    drawScreen(x, image, lines)
-    time.sleep(0.5)
+	drawScreen(x, image, lines)
+	time.sleep(0.5)
