@@ -148,18 +148,18 @@ def signal_handler(sig, frame):
 
 def flash_handler(channel):
 	print("Trying to flash")
-		try:
-			flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
-		except SystemError as e:
-			print("Error flashing: {}".format(e))
-			lines = []
-			lines.append("Error flashing board", "Try again")
-			GPIO.output(pin_led_good, GPIO.LOW)
-			GPIO.output(pin_led_bad, GPIO.HIGH)
-		else:
-			GPIO.output(pin_led_good, GPIO.HIGH)
-			GPIO.output(pin_led_bad, GPIO.LOW)
-			lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
+	try:
+		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
+	except SystemError as e:
+		print("Error flashing: {}".format(e))
+		lines = []
+		lines.append("Error flashing board", "Try again")
+		GPIO.output(pin_led_good, GPIO.LOW)
+		GPIO.output(pin_led_bad, GPIO.HIGH)
+	else:
+		GPIO.output(pin_led_good, GPIO.HIGH)
+		GPIO.output(pin_led_bad, GPIO.LOW)
+		lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
 
 signal.signal(signal.SIGINT, signal_handler)
 GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=10)
