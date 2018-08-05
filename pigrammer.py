@@ -122,9 +122,9 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 		P_flash.kill()
 		outp = P_flash.communicate()[0]
 
-	lines = outp.decode().split('\n')
+	outp = outp.decode().split('\n')
 	
-	for line in lines:
+	for line in outp:
 		if "1 bytes of efuse verified" in str(line):
 			lines.append("EFUSE : OK")
 			print("EFUSE : OK")
