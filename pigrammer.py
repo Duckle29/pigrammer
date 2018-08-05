@@ -156,7 +156,9 @@ def flash_handler(channel):
 
 	while not GPIO.input(pin_button):
 		pass
-		
+	
+	time.sleep(0.01)
+
 	print("Trying to flash")
 	try:
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
