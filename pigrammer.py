@@ -136,7 +136,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 				print("LFUSE : OK")
 			elif "error" in str(line):
 				lines.append("ERROR")
-				print("ERROR flashing: {}").format(line)
+				print("ERROR flashing: {}".format(line))
 				raise SystemError("Error flashing: {}".format(line))
 			#print("Debug: {}".format(line))
 		
