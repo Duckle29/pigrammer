@@ -11,8 +11,8 @@ log_file        = '/home/pi/log'
 
 # Pins
 pin_button      = 22 # Pin 15
-pin_led_good    = 17 # Pin 11
-pin_led_bad     = 27 # Pin 13
+pin_led_good    = 27 # Pin 11
+pin_led_bad     = 17 # Pin 13
 pin_oled_rst    = 23 # Pin 16
 
 
