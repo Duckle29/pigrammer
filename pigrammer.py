@@ -19,6 +19,8 @@ pin_oled_rst    = 23 # Pin 16
 import subprocess
 import time
 import RPi.GPIO as GPIO
+import signal
+import sys
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -65,7 +67,7 @@ bottom = height-padding
 x = 0
 
 # Load default font.
-font = ImageFont.load_default()
+font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf',10)
 
 #### End of display stuff
 
@@ -134,6 +136,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
                 lines.append("ERROR")
                 print("ERROR flashing: {}").format(line)
                 raise SystemError("Error flashing: {}".format(line))
+            print("Debug: {}".format(line))
         
         drawScreen(x, image, lines)
         time.sleep(0.1)
@@ -141,11 +144,20 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
     return True
 
 
-    
+def signal_handler(sig, frame):
+	print("Exiting program")
+	GPIO.cleanup()
+	sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+print("Startig loop")
+ 
 while True:
     lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
     
     if not GPIO.input(pin_button):
+        print("Trying to flash")
         try:
             if flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
                 GPIO.output(pin_led_good, GPIO.HIGH)
