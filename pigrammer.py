@@ -117,7 +117,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	start = time.time() # Time used to timeout avrdude
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-	while True: #P_flash.poll == None:
+	while P_flash.poll == None:
 		print("test")
 		
 		#if time.time() - start > timeout:
@@ -136,14 +136,11 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 				print("LFUSE : OK")
 			elif "error" in str(line):
 				lines.append("ERROR")
-				print("ERROR flashing: {}".format(line))
 				raise SystemError("Error flashing: {}".format(line))
 			#print("Debug: {}".format(line))
 		
 		drawScreen(x, image, lines)
 		time.sleep(0.1)
-	
-	print("fuck")
 
 def signal_handler(sig, frame):
 	print("Exiting program")
@@ -158,7 +155,7 @@ def flash_handler(channel):
 	except SystemError as e:
 		print("Error flashing: {}".format(e))
 		lines = []
-		lines.append("Error flashing board")
+		lines.append("Error flashing")
 		lines.append("Try again")
 		GPIO.output(pin_led_good, GPIO.LOW)
 		GPIO.output(pin_led_bad, GPIO.HIGH)
