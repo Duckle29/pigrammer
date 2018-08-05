@@ -153,14 +153,6 @@ def signal_handler(sig, frame):
 
 def flash_handler(channel):
 	global lines
-	GPIO.remove_event_detect(channel)
-
-	while not GPIO.input(pin_button):
-		pass
-	
-	time.sleep(0.01)
-
-	GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=100)
 
 	print("Trying to flash")
 	try:
@@ -178,7 +170,7 @@ def flash_handler(channel):
 		lines = ["Ready to flash", "Place probe on","board. Push", "button to flash"]
 
 signal.signal(signal.SIGINT, signal_handler)
-GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=100)
+GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=1000)
 
 print("Startig loop")
 lines = ["Ready to flash", "Place probe on","board. Push", "button to flash"]
