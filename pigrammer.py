@@ -132,43 +132,40 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
             elif "1 bytes of lfuse verified" in line:
                 lines.append("LFUSE : OK")
                 print("LFUSE : OK")
-            elif "not responding" in line:
+            elif "error" in line:
                 lines.append("ERROR")
                 print("ERROR flashing: {}").format(line)
                 raise SystemError("Error flashing: {}".format(line))
-            print("Debug: {}".format(line))
+            #print("Debug: {}".format(line))
         
         drawScreen(x, image, lines)
         time.sleep(0.1)
-    
-    return True
-
 
 def signal_handler(sig, frame):
 	print("Exiting program")
 	GPIO.cleanup()
 	sys.exit(0)
 
-signal.signal(signal.SIGINT, signal_handler)
-
-print("Startig loop")
- 
-while True:
-    lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
-    
-    if not GPIO.input(pin_button):
-        print("Trying to flash")
+def flash_handler(channel):
+	print("Trying to flash")
         try:
-            if flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
-                GPIO.output(pin_led_good, GPIO.HIGH)
-                GPIO.output(pin_led_bad, GPIO.LOW)
-
+            flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout):
         except SystemError as e:
             print("Error flashing: {}".format(e))
             lines = []
             lines.append("Error flashing board", "Try again")
             GPIO.output(pin_led_good, GPIO.LOW)
             GPIO.output(pin_led_bad, GPIO.HIGH)
+		else:
+			GPIO.output(pin_led_good, GPIO.HIGH)
+        	GPIO.output(pin_led_bad, GPIO.LOW)
+			lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
 
+signal.signal(signal.SIGINT, signal_handler)
+GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=10)
+
+print("Startig loop")
+ 
+while True:
     drawScreen(x, image, lines)
-    time.sleep(0.01)
+    time.sleep(0.5)
