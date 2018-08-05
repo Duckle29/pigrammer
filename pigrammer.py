@@ -66,7 +66,7 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-font_size = 10
+font_size = 12
 font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 
 #### End of display stuff
@@ -88,7 +88,7 @@ def drawScreen(x, image, lines):
 	draw.rectangle((0,0,width,height), outline=0, fill=0)
 	
 	for idx, line in enumerate(lines):
-		draw.text((x,top+(font_size*idx)), line, font=font, fill=255)
+		draw.text((x+1,top+(font_size*idx)), line, font=font, fill=255)
 	
 	disp.image(image)
 	disp.display()
