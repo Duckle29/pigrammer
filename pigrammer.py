@@ -88,7 +88,7 @@ def drawScreen(x, image, lines):
 	draw.rectangle((0,0,width,height), outline=0, fill=0)
 	
 	for idx, line in enumerate(lines):
-		draw.text((x,top+(8*idx)), line, font=font, fill=255)
+		draw.text((x,top+(font_size*idx)), line, font=font, fill=255)
 	
 	disp.image(image)
 	disp.display()
@@ -169,6 +169,5 @@ while True:
 	for idx, line in enumerate(lines):
 		draw.text((x,top+(idx*font_size)), line, font=font, fill=255)
 	
-	disp.image(image)
-	disp.display()
+	drawScreen(x, image, lines)
 	time.sleep(0.5)
