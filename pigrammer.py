@@ -155,6 +155,8 @@ def signal_handler(sig, frame):
 def flash_handler(channel):
 	global lines
 	print("Trying to flash")
+	pprint(globals())
+	pprint(locals())
 	try:
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
 	except SystemError as e:
