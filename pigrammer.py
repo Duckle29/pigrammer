@@ -137,9 +137,6 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 		elif "error" in str(line):
 			raise SystemError("Error flashing: {}".format(line))
 		#print("Debug: {}".format(line))
-		
-		drawScreen(x, image, lines)
-		time.sleep(0.1)
 
 def signal_handler(sig, frame):
 	print("Exiting program")
