@@ -158,7 +158,8 @@ def flash_handler(channel):
 	except SystemError as e:
 		print("Error flashing: {}".format(e))
 		lines = []
-		lines.append("Error flashing board", "Try again")
+		lines.append("Error flashing board")
+		lines.append("Try again")
 		GPIO.output(pin_led_good, GPIO.LOW)
 		GPIO.output(pin_led_bad, GPIO.HIGH)
 	else:
