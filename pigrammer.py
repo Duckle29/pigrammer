@@ -124,8 +124,8 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 		P_flash.kill()
 		outp = P_flash.communicate()[0]
 
-		pprint(globals())
-		pprint(locals())
+		pprint(locals()['outp'])
+
 		print(outp)
 		print(outp.decode())
 		print(outp.decode.split('\n'))
