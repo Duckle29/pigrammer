@@ -66,7 +66,7 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-font_size = 16
+font_size = 14
 font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf', font_size)
 
 #### End of display stuff
@@ -164,7 +164,7 @@ signal.signal(signal.SIGINT, signal_handler)
 GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=100)
 
 print("Startig loop")
-lines = ["Ready to flash", "Place probe on","board", "Push button","to flash"]
+lines = ["Ready to flash", "Place probe on","board. Push button","to flash"]
 while True:
 	for idx, line in enumerate(lines):
 		draw.text((x,top+(idx*font_size)), line, font=font, fill=255)
