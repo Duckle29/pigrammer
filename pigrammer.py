@@ -96,8 +96,6 @@ def drawScreen(x, image, lines):
 	disp.image(image)
 	disp.display()
 
-from pprint import pprint
-
 def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, timeout):
 	
 
@@ -123,8 +121,6 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	except TimeoutExpired:
 		P_flash.kill()
 		outp = P_flash.communicate()[0]
-
-		pprint(locals()['outp'])
 
 	lines = outp.decode().split('\n')
 	
