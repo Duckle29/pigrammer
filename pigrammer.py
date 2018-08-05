@@ -125,13 +125,13 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 		#	raise SystemError("AVRDUDE timed out")
 
 		for line in P_flash.stdout:
-			if "1 bytes of efuse verified" in line:
+			if "1 bytes of efuse verified" in str(line):
 				lines.append("EFUSE : OK")
 				print("EFUSE : OK")
-			elif "1 bytes of hfuse verified" in line:
+			elif "1 bytes of hfuse verified" in str(line):
 				lines.append("HFUSE : OK")
 				print("HFUSE : OK")
-			elif "1 bytes of lfuse verified" in line:
+			elif "1 bytes of lfuse verified" in str(line):
 				lines.append("LFUSE : OK")
 				print("LFUSE : OK")
 			elif "error" in line:
