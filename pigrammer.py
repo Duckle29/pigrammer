@@ -118,6 +118,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE)
 
 	while P_flash.poll == None:
+		print("test")
 		
 		if time.time() - start > timeout:
 			P_flash.kill()
