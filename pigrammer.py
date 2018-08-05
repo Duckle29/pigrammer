@@ -66,8 +66,8 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-# Load default font.
-font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf',16)
+font_size = 16
+font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf', font_size)
 
 #### End of display stuff
 
@@ -166,5 +166,12 @@ GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bounceti
 print("Startig loop")
 lines = ["Ready to flash", "Place probe on board", "Push button to flash"]
 while True:
-	drawScreen(x, image, lines)
+	
+	for idx, line in enumerate(lines):
+		draw.text((x,top+(idx*font_size)), line, font=font, fill=255)
+	
+	# Display image.
+    disp.image(image)
+    disp.display()
+	
 	time.sleep(0.5)
