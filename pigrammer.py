@@ -66,7 +66,7 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 0
 
-font_size = 14
+font_size = 10
 font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 
 #### End of display stuff
