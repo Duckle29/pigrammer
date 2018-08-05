@@ -118,10 +118,10 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	try:
-		lines, errs = P_flash.communicate(timeout=avrdude_timeout)
+		lines = P_flash.communicate(timeout=avrdude_timeout)[0]
 	except TimeoutExpired:
 		P_flash.kill()
-		lines, errs = P_flash.communicate()
+		lines = P_flash.communicate()[0]
 
 		for line in lines:
 			if "1 bytes of efuse verified" in str(line):
