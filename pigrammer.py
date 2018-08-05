@@ -122,6 +122,8 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	except TimeoutExpired:
 		P_flash.kill()
 		lines = P_flash.communicate()[0]
+	
+	print(lines)
 
 		for line in lines:
 			if "1 bytes of efuse verified" in str(line):
