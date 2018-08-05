@@ -153,6 +153,10 @@ def signal_handler(sig, frame):
 
 def flash_handler(channel):
 	global lines
+
+	while not GPIO.input(pin_button):
+		pass
+		
 	print("Trying to flash")
 	try:
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
@@ -169,7 +173,7 @@ def flash_handler(channel):
 		lines = ["Ready to flash", "Place probe on","board. Push", "button to flash"]
 
 signal.signal(signal.SIGINT, signal_handler)
-GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=200)
+GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=100)
 
 print("Startig loop")
 lines = ["Ready to flash", "Place probe on","board. Push", "button to flash"]
