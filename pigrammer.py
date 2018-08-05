@@ -35,6 +35,9 @@ GPIO.setup(pin_led_bad, GPIO.OUT)
 GPIO.setup(pin_led_good, GPIO.OUT)
 GPIO.setup(pin_oled_rst, GPIO.OUT)
 
+GPIO.output(pin_led_good, GPIO.HIGH)
+GPIO.output(pin_led_bad, GPIO.LOW)
+
 disp = Adafruit_SSD1306.SSD1306_128_64(rst=pin_oled_rst, i2c_address=0x3C)
 disp.begin()
 
