@@ -67,7 +67,7 @@ bottom = height-padding
 x = 0
 
 # Load default font.
-font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf',10)
+font = ImageFont.truetype('VCR_OSD_MONO_1.001.ttf',16)
 
 #### End of display stuff
 
