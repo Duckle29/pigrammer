@@ -21,6 +21,9 @@ import time
 import RPi.GPIO as GPIO
 import signal
 import sys
+import logging
+from systemd.journal import JournaldLogHandler
+
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -28,7 +31,7 @@ from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 
-# Setup
+## Setup
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pin_button, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(pin_led_bad, GPIO.OUT)
@@ -42,6 +45,21 @@ disp = Adafruit_SSD1306.SSD1306_128_64(rst=pin_oled_rst, i2c_address=0x3C)
 disp.begin()
 
 state = 0
+
+# Loggin related setup
+logger = logging.getLogger('PiGrammer')
+journald_handler = JournaldLogHandler()
+
+# set a formatter to include the level name
+journald_handler.setFormatter(logging.Formatter(
+	'[%(levelname)s] %(message)s'
+))
+
+# add the journald handler to the current logger
+logger.addHandler(journald_handler)
+
+# optionally set the logging level
+logger.setLevel(logging.INFO)
 
 #### Display stuff
 
@@ -112,8 +130,7 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	]
 
 	lines = []
-
-	start = time.time() # Time used to timeout avrdude
+	logger.info("Flashing started at: {}".format(start))
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	try:
@@ -128,12 +145,15 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 		if "1 bytes of efuse verified" in str(line):
 			lines.append("EFUSE : OK")
 			print("EFUSE : OK")
+			logger.info("EFUSE : OK")
 		elif "1 bytes of hfuse verified" in str(line):
 			lines.append("HFUSE : OK")
 			print("HFUSE : OK")
+			logger.info("HFUSE : OK")
 		elif "1 bytes of lfuse verified" in str(line):
 			lines.append("LFUSE : OK")
 			print("LFUSE : OK")
+			logger.info("LFUSE : OK")
 		elif "error" in str(line):
 			raise SystemError("Error flashing: {}".format(line))
 		#print("Debug: {}".format(line))
@@ -148,15 +168,23 @@ def flash_handler(channel):
 
 	print("Trying to flash")
 	try:
+		start = time.time() # Time used to timeout avrdude
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
 	except SystemError as e:
+		# Log
+		logger.error("Error flashing: {}".format(e))
+
+		# Print info
 		print("Error flashing: {}".format(e))
+
+		# Display info
 		lines = []
 		lines.append("Error flashing")
 		lines.append("Try again")
 		GPIO.output(pin_led_good, GPIO.LOW)
 		GPIO.output(pin_led_bad, GPIO.HIGH)
 	else:
+		logger.info("Chip flashed in: {} seconds".format(time.time()-start))
 		GPIO.output(pin_led_good, GPIO.HIGH)
 		GPIO.output(pin_led_bad, GPIO.LOW)
 		lines = ["Ready to flash"]
@@ -164,7 +192,8 @@ def flash_handler(channel):
 signal.signal(signal.SIGINT, signal_handler)
 GPIO.add_event_detect(pin_button, GPIO.FALLING, callback=flash_handler, bouncetime=1000)
 
-print("Startig loop")
+print("Startig PiGrammer")
+logger.info("Starting PiGrammer")
 lines = ["Ready to flash"]
 while True:
 	for idx, line in enumerate(lines):
