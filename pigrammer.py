@@ -15,6 +15,7 @@ pin_led_good    = 27 # Pin 11
 pin_led_bad     = 17 # Pin 13
 pin_oled_rst    = 23 # Pin 16
 
+shutdown_delay = 5 # Time in seconds to hold programming button for to shut down
 
 import subprocess
 import time
@@ -23,7 +24,6 @@ import signal
 import sys
 import logging
 from systemd.journal import JournaldLogHandler
-
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -92,6 +92,8 @@ font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 
 #### End of display stuff
 
+main_draw = True
+
 def restart():
 	command = ["/usr/bin/sudo",  "/sbin/reboot"]
 	process = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -99,10 +101,16 @@ def restart():
 	print(output)
 
 def shutdown():
-	command = ["/usr/bin/sudo", "/sbin/shutdown -h 0"]
+	global lines
+	global main_draw
+	main_draw = False
+	time.sleep(0.5)
+	lines = ["Shutting down", "wait for green", "led to stop", "Then turn off"]
+	drawScreen(x, image, lines)
+
+	command = ["/usr/bin/sudo", "/sbin/shutdown","-h","0"]
 	process = subprocess.Popen(command, stdout=subprocess.PIPE)
-	output = process.communicate()[0]
-	print(output)
+	sys.exit(0)
 
 def drawScreen(x, image, lines):
 	# Draw a black filled box to clear the image.
@@ -130,7 +138,6 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 	]
 
 	lines = []
-	logger.info("Flashing started at: {}".format(start))
 	P_flash = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	try:
@@ -155,20 +162,30 @@ def flash(avrdude_path, hex_path,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse,
 			print("LFUSE : OK")
 			logger.info("LFUSE : OK")
 		elif "error" in str(line):
-			raise SystemError("Error flashing: {}".format(line))
+			raise SystemError(line)
 		#print("Debug: {}".format(line))
 
 def signal_handler(sig, frame):
 	print("Exiting program")
+	logger.info("Exiting program")
 	GPIO.cleanup()
 	sys.exit(0)
 
 def flash_handler(channel):
 	global lines
 
+	start = time.time()
+	while not GPIO.input(pin_button):
+		if time.time() - start > shutdown_delay:
+			print("Shutting down")
+			logger.info("Shutting down")
+			GPIO.cleanup()
+			shutdown()
+
 	print("Trying to flash")
 	try:
 		start = time.time() # Time used to timeout avrdude
+		logger.info("Flashing started at: {}".format(start))
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse,lock_fuse, avrdude_timeout)
 	except SystemError as e:
 		# Log
@@ -196,8 +213,7 @@ print("Startig PiGrammer")
 logger.info("Starting PiGrammer")
 lines = ["Ready to flash"]
 while True:
-	for idx, line in enumerate(lines):
-		draw.text((x,top+(idx*font_size)), line, font=font, fill=255)
 	
-	drawScreen(x, image, lines)
-	time.sleep(0.5)
+	if main_draw:
+		drawScreen(x, image, lines)
+		time.sleep(0.5)
