@@ -103,7 +103,6 @@ font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 main_draw = True
 
 def cleanup():
-	  
 	wp.pullUpDnControl(pin_button, wp.PUD_OFF)
 	wp.pinMode(pin_led_good, wp.INPUT)
 	wp.pinMode(pin_led_good, wp.INPUT)
@@ -126,10 +125,10 @@ def drawScreen(x, image, lines):
 	# Draw a black filled box to clear the image.
 	lines = lines[-4:]
 	draw.rectangle((0,0,width,height), outline=0, fill=0)
-	
+
 	for idx, line in enumerate(lines):
 		draw.text((x+1,top+((font_size+5)*idx)), line, font=font, fill=255)
-	
+
 	disp.image(image)
 	disp.display()
 
@@ -139,7 +138,7 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	global image
 	main_draw = False
 
-	command_fuses = command = [avrdude_path, 
+	command_fuses = command = [avrdude_path,
 	"-p", mcu,
 	"-c", "linuxspi",
 	"-P", "/dev/spidev0.0",
@@ -149,24 +148,24 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	"-U", "efuse:w:{}:m".format(ext_fuse)
 	]
 
-	command_flash = [avrdude_path, 
+	command_flash = [avrdude_path,
 	"-p", mcu,
 	"-c", "linuxspi",
 	"-P", "/dev/spidev0.0",
 	"-b", "4000000",
 	"-U", "flash:w:{}".format(hex_path),
 	]
-	
+
 	if debug:
 		for item in command:
 			print(item, end=' ')
 		sys.exit(0)
-	
+
 	lines = ['Flashing']
 	drawScreen(x, image, lines)
 	lines = []
-	
-	
+
+
 	P_flash= subprocess.Popen(command_fuses, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	while True:
@@ -190,7 +189,7 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 			elif "error" in termline or "override" in termline:
 				main_draw = True
 				raise SystemError(termline)
-		
+
 	P_flash = subprocess.Popen(command_flash, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	while True:
@@ -209,7 +208,6 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 
 	#P_flash.kill()
 	main_draw = True
-	
 
 
 def signal_handler(sig, frame):
@@ -251,8 +249,10 @@ def flash_handler():
 	main_draw = True
 
 	print("Trying to flash")
-	
+
 	try:
+		wp.digitalWrite(pin_led_good, wp.LOW)
+		wp.digitalWrite(pin_led_bad, wp.LOW)
 		start = time.time() # Time used to timeout avrdude
 		logger.info("Flashing started at: {}".format(start))
 		flash(avrdude_path, bootloader_hex,log_file,ext_fuse,high_fuse,low_fuse, avrdude_timeout)
@@ -282,7 +282,6 @@ print("Startig PiGrammer")
 logger.info("Starting PiGrammer")
 lines = ["Ready to flash"]
 while True:
-	
 	if main_draw:
 		drawScreen(x, image, lines)
 		time.sleep(0.5)
