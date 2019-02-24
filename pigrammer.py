@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-debug = False
-
 avrdude_path    = '/usr/bin/avrdude'
 mcu = 'm32u4'
 avrdude_timeout = 20 # Timeout in seconds before killing avrdude
@@ -142,7 +140,7 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	"-p", mcu,
 	"-c", "linuxspi",
 	"-P", "/dev/spidev0.0",
-	"-b", "500000",
+	"-b", "250000",
 	"-U", "lfuse:w:{}:m".format(low_fuse),
 	"-U", "hfuse:w:{}:m".format(high_fuse),
 	"-U", "efuse:w:{}:m".format(ext_fuse)
@@ -155,11 +153,6 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	"-b", "4000000",
 	"-U", "flash:w:{}".format(hex_path),
 	]
-
-	if debug:
-		for item in command:
-			print(item, end=' ')
-		sys.exit(0)
 
 	lines = ['Flashing']
 	drawScreen(x, image, lines)
