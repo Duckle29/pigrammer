@@ -6,7 +6,7 @@ avrdude_timeout = 20 # Timeout in seconds before killing avrdude
 #bootloader_hex = '/home/pi/pigrammer/hexes/Attiny85-test-firm.hex'
 bootloader_hex  = '/home/pi/pigrammer/hexes/vitamins_included_rev2_default_production.hex'
 low_fuse        = '0xDE'
-high_fuse       = '0x99'
+high_fuse       = '0xD9'
 ext_fuse        = '0xC3'
 log_file        = '/home/pi/log'
 
