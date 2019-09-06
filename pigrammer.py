@@ -6,7 +6,7 @@ avrdude_timeout = 20 # Timeout in seconds before killing avrdude
 #bootloader_hex = '/home/pi/pigrammer/hexes/Attiny85-test-firm.hex'
 bootloader_hex  = '/home/pi/pigrammer/hexes/vitamins_included_rev2_default_production.hex'
 low_fuse        = '0xDE'
-high_fuse       = '0xD9'
+high_fuse       = '0x99'
 ext_fuse        = '0xC3'
 log_file        = '/home/pi/log'
 
@@ -141,6 +141,7 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	"-c", "linuxspi",
 	"-P", "/dev/spidev0.0",
 	"-b", "250000",
+	"-e",
 	"-U", "lfuse:w:{}:m".format(low_fuse),
 	"-U", "hfuse:w:{}:m".format(high_fuse),
 	"-U", "efuse:w:{}:m".format(ext_fuse)
