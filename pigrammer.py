@@ -4,6 +4,7 @@ import time
 import wiringpi as wp
 import signal
 import sys
+from os import execl
 import logging
 from systemd.journal import JournaldLogHandler
 
@@ -286,14 +287,27 @@ def is_online():
 
 
 def update():
+	global x
+	global image
 	repo = Repo('/home/pi/pigrammer')
+	commits_behind = sum(1 for c in (repo.iter_commits('production..production@{u}')))
+	if commits_behind > 0:
+		lines = ['Updating']
+		logger.info('Update available, updating')
+		drawScreen(x, image, lines)
 
+		repo.remotes.origin.pull()
 
-	lines = ['Flashing']
+		lines = ["Updated, restarting"]
+		time.sleep(1)
+		python = sys.executable
+		execl(python, python, *sys.argv)
+
+	lines.append('Up to date')
+	logger.info('Up to date')
 	drawScreen(x, image, lines)
-	lines = []
+	time.sleep(1)
 
-	P_flash = subprocess.Popen(command_fuses, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 signal.signal(signal.SIGINT, signal_handler)
 wp.wiringPiISR(pin_button, wp.INT_EDGE_FALLING, debounce_handler)
@@ -302,6 +316,7 @@ print("Startig PiGrammer")
 logger.info("Starting PiGrammer")
 
 if is_online():
+	logger.info('Pigrammer is online, checking for updates')
 	lines = ['Checking for', 'updates']
 	drawScreen(x, image, lines)
 
