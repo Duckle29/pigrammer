@@ -303,7 +303,7 @@ def update():
 		python = sys.executable
 		execl(python, python, *sys.argv)
 
-	lines = ('Up to date')
+	lines = ['Up to date']
 	logger.info('Up to date')
 	drawScreen(x, image, lines)
 	time.sleep(1)
