@@ -223,9 +223,9 @@ def is_online():
 def update():
 	global x
 	global image
-	repo = Repo('/home/pi/pigrammer')
-	repo.remotes.origin.fetch()
+
 	commits_behind = sum(1 for c in (repo.iter_commits('production..production@{u}')))
+
 	if commits_behind > 0:
 		lines = ['Updating']
 		logger.info('Update available, updating')
@@ -240,7 +240,6 @@ def update():
 		python = sys.executable
 		execl(python, python, *sys.argv)
 
-	version = next((tag for tag in repo.tags if tag.commit == repo.head.commit), None)
 	lines = ["Up to date", version]
 	logger.info('Up to date')
 	drawScreen(x, image, lines)
@@ -313,12 +312,21 @@ font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 
 main_draw = True
 
+repo = Repo('/home/pi/pigrammer')
+
+version = next((tag for tag in repo.tags if tag.commit == repo.head.commit), "Unknown")
+
 if is_online():
+	repo.remotes.origin.fetch()
 	logger.info('Pigrammer is online, checking for updates')
 	lines = ['Checking for', 'updates']
 	drawScreen(x, image, lines)
 	time.sleep(1)
 	update()
+else:
+	lines = [version]
+	drawScreen(x, image, lines)
+	time.sleep(1)
 
 signal.signal(signal.SIGINT, signal_handler)
 wp.wiringPiISR(pin_button, wp.INT_EDGE_FALLING, debounce_handler)
