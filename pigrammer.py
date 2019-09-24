@@ -302,6 +302,7 @@ def update():
 		lines = ["Updated", "restarting"]
 		drawScreen(x, image, lines)
 		time.sleep(1)
+		cleanup()
 		python = sys.executable
 		execl(python, python, *sys.argv)
 
