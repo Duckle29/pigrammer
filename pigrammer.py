@@ -240,7 +240,7 @@ def update():
 		python = sys.executable
 		execl(python, python, *sys.argv)
 
-	lines = ["Up to date", version]
+	lines = ["Up to date", str(version)]
 	logger.info('Up to date')
 	drawScreen(x, image, lines)
 	time.sleep(1)
@@ -324,7 +324,7 @@ if is_online():
 	time.sleep(1)
 	update()
 else:
-	lines = [version]
+	lines = [str(version)]
 	drawScreen(x, image, lines)
 	time.sleep(1)
 
