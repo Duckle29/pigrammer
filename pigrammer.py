@@ -299,7 +299,7 @@ def update():
 
 		repo.remotes.origin.pull()
 
-		lines = ["Updated, restarting"]
+		lines = ["Updated", "restarting"]
 		drawScreen(x, image, lines)
 		time.sleep(1)
 		python = sys.executable
