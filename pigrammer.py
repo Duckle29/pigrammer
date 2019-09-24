@@ -290,6 +290,7 @@ def update():
 	global x
 	global image
 	repo = Repo('/home/pi/pigrammer')
+	repo.remotes.origin.fetch()
 	commits_behind = sum(1 for c in (repo.iter_commits('production..production@{u}')))
 	if commits_behind > 0:
 		lines = ['Updating']
