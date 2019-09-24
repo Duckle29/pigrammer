@@ -319,6 +319,8 @@ if is_online():
 	logger.info('Pigrammer is online, checking for updates')
 	lines = ['Checking for', 'updates']
 	drawScreen(x, image, lines)
+	time.sleep(1)
+	update()
 
 
 lines = ["Ready to flash"]
