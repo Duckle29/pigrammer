@@ -213,7 +213,11 @@ def flash_handler():
 
 
 def is_online():
-	req = requests.get('http://clients3.google.com/generate_204')
+	try:
+		req = requests.get('http://clients3.google.com/generate_204')
+	except requests.exceptions.ConnectionError:
+		return False
+
 	if req.status_code == 204:
 		return True
 	else:
