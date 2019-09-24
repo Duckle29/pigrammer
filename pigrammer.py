@@ -1,25 +1,4 @@
 #!/usr/bin/python3
-
-avrdude_path    = '/usr/bin/avrdude'
-mcu = 'm32u4'
-avrdude_timeout = 20 # Timeout in seconds before killing avrdude
-#bootloader_hex = '/home/pi/pigrammer/hexes/Attiny85-test-firm.hex'
-bootloader_hex  = '/home/pi/pigrammer/hexes/vitamins_included_rev2_default_production.hex'
-low_fuse        = '0xDE'
-high_fuse       = '0xD9'
-ext_fuse        = '0xC3'
-log_file        = '/home/pi/log'
-
-debounce_time = 0.05 # Time spent ignoring more button pushes
-
-# Pins
-pin_button      = 22 # Pin 15
-pin_led_good    = 27 # Pin 11
-pin_led_bad     = 17 # Pin 13
-pin_oled_rst    = 23 # Pin 16
-
-shutdown_delay = 6 # Time in seconds to hold programming button for to shut down
-
 import subprocess
 import time
 import wiringpi as wp
@@ -28,11 +7,33 @@ import sys
 import logging
 from systemd.journal import JournaldLogHandler
 
+from git import Repo
+import requests
+
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
+
+avrdude_path = '/usr/bin/avrdude'
+mcu = 'm32u4'
+avrdude_timeout = 20  # Timeout in seconds before killing avrdude
+bootloader_hex = '/home/pi/pigrammer/hexes/vitamins_included_rev2_default_production.hex'
+low_fuse = '0xDE'
+high_fuse = '0x98'
+ext_fuse = '0xCB'
+log_file = '/home/pi/log'
+
+debounce_time = 0.05  # Time spent ignoring more button pushes
+
+# Pins
+pin_button = 22     # Pin 15
+pin_led_good = 27   # Pin 11
+pin_led_bad = 17    # Pin 13
+pin_oled_rst = 23   # Pin 16
+
+shutdown_delay = 6  # Time in seconds to hold programming button for to shut down
 
 ## Setup
 wp.wiringPiSetupGpio()
@@ -100,12 +101,14 @@ font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
 
 main_draw = True
 
+
 def cleanup():
 	wp.pullUpDnControl(pin_button, wp.PUD_OFF)
 	wp.pinMode(pin_led_good, wp.INPUT)
 	wp.pinMode(pin_led_good, wp.INPUT)
 	wp.pinMode(pin_led_bad, wp.INPUT)
 	wp.pinMode(pin_oled_rst, wp.INPUT)
+
 
 def shutdown():
 	global lines
@@ -119,6 +122,7 @@ def shutdown():
 	process = subprocess.Popen(command, stdout=subprocess.PIPE)
 	sys.exit(0)
 
+
 def drawScreen(x, image, lines):
 	# Draw a black filled box to clear the image.
 	lines = lines[-4:]
@@ -130,42 +134,44 @@ def drawScreen(x, image, lines):
 	disp.image(image)
 	disp.display()
 
+
 def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	global main_draw
 	global x
 	global image
 	main_draw = False
 
-	command_fuses = command = [avrdude_path,
-	"-p", mcu,
-	"-c", "linuxspi",
-	"-P", "/dev/spidev0.0",
-	"-b", "250000",
-	"-e",
-	"-U", "lfuse:w:{}:m".format(low_fuse),
-	"-U", "hfuse:w:{}:m".format(high_fuse),
-	"-U", "efuse:w:{}:m".format(ext_fuse)
+	command_fuses = [
+		avrdude_path,
+		"-p", mcu,
+		"-c", "linuxspi",
+		"-P", "/dev/spidev0.0",
+		"-b", "250000",
+		"-e",
+		"-U", "lfuse:w:{}:m".format(low_fuse),
+		"-U", "hfuse:w:{}:m".format(high_fuse),
+		"-U", "efuse:w:{}:m".format(ext_fuse)
 	]
 
-	command_flash = [avrdude_path,
-	"-p", mcu,
-	"-c", "linuxspi",
-	"-P", "/dev/spidev0.0",
-	"-b", "4000000",
-	"-U", "flash:w:{}".format(hex_path),
+	command_flash = [
+		avrdude_path,
+		"-p", mcu,
+		"-c", "linuxspi",
+		"-P", "/dev/spidev0.0",
+		"-b", "4000000",
+		"-U", "flash:w:{}".format(hex_path),
 	]
 
 	lines = ['Flashing']
 	drawScreen(x, image, lines)
 	lines = []
 
-
-	P_flash= subprocess.Popen(command_fuses, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	P_flash = subprocess.Popen(command_fuses, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 	while True:
 		termline = P_flash.stdout.readline().decode()
 
-		if termline == '' and P_flash.poll() != None:
+		if termline == '' and P_flash.poll() is not None:
 			break
 		else:
 			if "1 bytes of efuse verified" in termline:
@@ -189,7 +195,7 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 	while True:
 		termline = P_flash.stdout.readline().decode()
 
-		if termline == '' and P_flash.poll() != None:
+		if termline == '' and P_flash.poll() is not None:
 			break
 		else:
 			if "bytes of flash verified" in termline:
@@ -200,7 +206,6 @@ def flash(avrdude_path,hex_path,log_file,ext_fuse,high_fuse,low_fuse,timeout):
 				main_draw = True
 				raise SystemError(termline)
 
-	#P_flash.kill()
 	main_draw = True
 
 
@@ -210,6 +215,7 @@ def signal_handler(sig, frame):
 	cleanup()
 	sys.exit(0)
 
+
 def debounce_handler():
 	global last_push
 
@@ -217,6 +223,7 @@ def debounce_handler():
 		if time.time() - last_push > debounce_time:
 			last_push = time.time()
 			flash_handler()
+
 
 def flash_handler():
 
@@ -269,11 +276,36 @@ def flash_handler():
 		wp.digitalWrite(pin_led_bad, wp.LOW)
 		lines = ["Ready to flash"]
 
+
+def is_online():
+	req = requests.get('http://clients3.google.com/generate_204')
+	if req.status_code == 204:
+		return True
+	else:
+		return False
+
+
+def update():
+	repo = Repo('/home/pi/pigrammer')
+
+
+	lines = ['Flashing']
+	drawScreen(x, image, lines)
+	lines = []
+
+	P_flash = subprocess.Popen(command_fuses, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
 signal.signal(signal.SIGINT, signal_handler)
 wp.wiringPiISR(pin_button, wp.INT_EDGE_FALLING, debounce_handler)
 
 print("Startig PiGrammer")
 logger.info("Starting PiGrammer")
+
+if is_online():
+	lines = ['Checking for', 'updates']
+	drawScreen(x, image, lines)
+
+
 lines = ["Ready to flash"]
 while True:
 	if main_draw:
