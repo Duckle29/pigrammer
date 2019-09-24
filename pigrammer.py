@@ -36,72 +36,6 @@ pin_oled_rst = 23   # Pin 16
 
 shutdown_delay = 6  # Time in seconds to hold programming button for to shut down
 
-## Setup
-wp.wiringPiSetupGpio()
-
-wp.pinMode(pin_button, wp.INPUT)
-wp.pullUpDnControl(pin_button, wp.PUD_UP)
-
-wp.pinMode(pin_led_bad, wp.OUTPUT)
-wp.pinMode(pin_led_good, wp.OUTPUT)
-wp.pinMode(pin_oled_rst, wp.OUTPUT)
-
-wp.digitalWrite(pin_led_good, wp.HIGH)
-wp.digitalWrite(pin_led_bad, wp.LOW)
-
-disp = Adafruit_SSD1306.SSD1306_128_64(rst=pin_oled_rst, i2c_address=0x3C)
-disp.begin()
-
-last_push = 0
-
-# Loggin related setup
-logger = logging.getLogger('PiGrammer')
-journald_handler = JournaldLogHandler()
-
-# set a formatter to include the level name
-journald_handler.setFormatter(logging.Formatter(
-	'[%(levelname)s] %(message)s'
-))
-
-# add the journald handler to the current logger
-logger.addHandler(journald_handler)
-
-# optionally set the logging level
-logger.setLevel(logging.INFO)
-
-#### Display stuff
-
-# Clear display.
-disp.clear()
-disp.display()
-
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
-
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
-
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = 0
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = 0
-
-font_size = 11
-font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
-
-#### End of display stuff
-
-main_draw = True
-
 
 def cleanup():
 	wp.pullUpDnControl(pin_button, wp.PUD_OFF)
@@ -312,11 +246,71 @@ def update():
 	time.sleep(1)
 
 
-signal.signal(signal.SIGINT, signal_handler)
-wp.wiringPiISR(pin_button, wp.INT_EDGE_FALLING, debounce_handler)
+## Setup
+wp.wiringPiSetupGpio()
 
-print("Startig PiGrammer")
-logger.info("Starting PiGrammer")
+wp.pinMode(pin_button, wp.INPUT)
+wp.pullUpDnControl(pin_button, wp.PUD_UP)
+
+wp.pinMode(pin_led_bad, wp.OUTPUT)
+wp.pinMode(pin_led_good, wp.OUTPUT)
+wp.pinMode(pin_oled_rst, wp.OUTPUT)
+
+wp.digitalWrite(pin_led_good, wp.HIGH)
+wp.digitalWrite(pin_led_bad, wp.LOW)
+
+disp = Adafruit_SSD1306.SSD1306_128_64(rst=pin_oled_rst, i2c_address=0x3C)
+disp.begin()
+
+last_push = 0
+
+# Loggin related setup
+logger = logging.getLogger('PiGrammer')
+journald_handler = JournaldLogHandler()
+
+# set a formatter to include the level name
+journald_handler.setFormatter(logging.Formatter(
+	'[%(levelname)s] %(message)s'
+))
+
+# add the journald handler to the current logger
+logger.addHandler(journald_handler)
+
+# optionally set the logging level
+logger.setLevel(logging.INFO)
+
+#### Display stuff
+
+# Clear display.
+disp.clear()
+disp.display()
+
+# Create blank image for drawing.
+# Make sure to create image with mode '1' for 1-bit color.
+width = disp.width
+height = disp.height
+image = Image.new('1', (width, height))
+
+# Get drawing object to draw on image.
+draw = ImageDraw.Draw(image)
+
+# Draw a black filled box to clear the image.
+draw.rectangle((0,0,width,height), outline=0, fill=0)
+
+# Draw some shapes.
+# First define some constants to allow easy resizing of shapes.
+padding = 0
+top = padding
+bottom = height-padding
+# Move left to right keeping track of the current x position for drawing shapes.
+x = 0
+
+font_size = 11
+font = ImageFont.truetype('8-bit-fortress.ttf', font_size)
+
+#### End of display stuff
+
+main_draw = True
 
 if is_online():
 	logger.info('Pigrammer is online, checking for updates')
@@ -325,6 +319,11 @@ if is_online():
 	time.sleep(1)
 	update()
 
+signal.signal(signal.SIGINT, signal_handler)
+wp.wiringPiISR(pin_button, wp.INT_EDGE_FALLING, debounce_handler)
+
+print("Startig PiGrammer")
+logger.info("Starting PiGrammer")
 
 lines = ["Ready to flash"]
 while True:
