@@ -22,7 +22,7 @@ smmap2==2.0.5
 spidev==3.2
 systemd==0.16.1
 systemd-python==233
-urllib3==1.25.6
+urllib3==1.25.8
 wiringpi==2.46.0
 GitPython==3.0.2
 requests==2.22.0
