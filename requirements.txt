@@ -9,7 +9,7 @@ GitPython==3.0.2
 idna==2.8
 keyring==10.1
 keyrings.alt==1.3
-Pillow==5.2.0
+Pillow==8.3.2
 pyasn1==0.1.9
 pycrypto==2.6.1
 pygobject==3.22.0
